@@ -1,0 +1,7 @@
+#everything inside SnippetAndroid/bin
+/SnippetAndroid/bin/**
+
+.classpath
+.project
+project.properties
+
