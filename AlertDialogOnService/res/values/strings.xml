@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">AlertDialogOnService</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="yes_text">Yes</string>
+    <string name="no_text">No</string>
+    <string name="title_step_one">Step One</string>
+    <string name="title_step_two">Step Two</string>
+    <string name="step_one_msg_body">Step One msg body</string>
+    <string name="step_two_msg_body">Step Two Msg Body</string>
+
+</resources>
