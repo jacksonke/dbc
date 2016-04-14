@@ -1,0 +1,134 @@
+apply plugin: 'com.android.application'
+
+//import java.util.regex.Pattern
+import org.apache.tools.ant.taskdefs.condition.Os
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.1"
+
+    sourceSets.main {
+        manifest.srcFile 'src/main/AndroidManifest.xml'
+        jniLibs.srcDir 'src/main/libs'
+
+        // 不使用android studio的ndk编译入口
+        jni.srcDirs = []
+
+        assets.srcDirs = ['src/main/assets']
+        aidl.srcDirs = ['src/main/aidl']
+    }
+
+    defaultConfig {
+        applicationId "com.example.jacksonke.scriptdemo"
+        minSdkVersion 11
+        targetSdkVersion 23
+//        versionCode getVersionCodeFromManifest()
+        versionCode 1
+        versionName "1.0"
+
+//        ndk {
+//            moduleName "hello-jni"
+//        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    project.afterEvaluate{
+        tasks.getByName("preDebugBuild"){
+            it.doFirst{
+                println("preDebugBuild doFirst ... ")
+            }
+        }
+
+        tasks.getByName("preReleaseBuild"){
+            it.doFirst{
+                println("preReleaseBuild doFirst ...")
+            }
+        }
+    }
+
+//    productFlavors {
+//        x86 {
+//            ndk {
+//                abiFilter "x86"
+//            }
+//        }
+//        mips {
+//            ndk {
+//                abiFilter "mips"
+//            }
+//        }
+//        armv7 {
+//            ndk {
+//                abiFilter "armeabi-v7a"
+//            }
+//        }
+//        arm {
+//            ndk {
+//                abiFilter "armeabi"
+//            }
+//        }
+//        fat
+//
+//    }
+
+    lintOptions {
+        disable 'InvalidPackage'
+    }
+
+    packagingOptions {
+        exclude 'META-INF/services/javax.annotation.processing.Processor'
+    }
+}
+
+//def getVersionCodeFromManifest() {
+//    def manifestFile = file(android.sourceSets.main.manifest.srcFile)
+//    def pattern = Pattern.compile("versionCode=\"(\\d+)\"")
+//    def matcher = pattern.matcher(manifestFile.getText())
+//    matcher.find()
+//    return Integer.parseInt(matcher.group(1))
+//}
+
+task buildNative(type: Exec, description: 'CompileJNI source via NDK') {
+    println("task buildNative is running")
+
+    if(project.gradle.ndkDir == null)
+        println "ndkDir is not configed"
+    else{
+        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+            commandLine 'ndk-build.cmd', '-C', file('src/main/jni').absolutePath
+        } else {
+            commandLine 'ndk-build', '-C', file('src/main/jni').absolutePath
+        }
+
+//        commandLine "${project.gradle.ndkDir}/ndk-build",
+//                '-C', file('jni').absolutePath
+
+//        commandLine "/${project.gradle.ndkDir}/ndk-build",
+//                '-C', file('jni').absolutePath,
+//                '-j', Runtime.runtime.availableProcessors(),
+//                'all', 'NDK_DEBUG=0'
+    }
+}
+
+tasks.withType(JavaCompile) {
+    compileTask -> compileTask.dependsOn buildNative
+}
+
+tasks.getByName("assemble"){
+    it.doLast{
+        println "assemble dolast ..."
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    testCompile 'junit:junit:4.12'
+    compile 'com.android.support:appcompat-v7:23.1.0'
+    compile 'com.android.support:design:23.1.0'
+    compile 'com.jakewharton:butterknife:7.0.1'
+}
